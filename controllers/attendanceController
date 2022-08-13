@@ -1,0 +1,43 @@
+const asyncHandler = require('express-async-handler')
+const Attendance = require('../models/attendanceModel')
+
+const getAttendances = asyncHandler(async (req, res) => {
+    console.log('test get')
+    const attendances = await Attendance.find()
+    // res.status(200).json(attendances)
+    // console.log('attendances')
+    console.log('attendances', attendances)
+    res.status(200).json(attendances)
+    // res.status(200).json({message: attendances})
+})
+
+const createAttendances = asyncHandler(async (req, res) => {
+    // console.log(req.body)
+    console.log(req.body.date)
+    if(!req.body.date){
+        // res.status(400).json({ error : 'Date required.'})
+        res.status(400)
+        throw new Error('Date required')
+    }else{
+        const attendance = await Attendance.create({
+            date: req.body.date
+        })
+        res.status(201).json(attendance)
+        // res.status(201).json({message: 'create attendance'})
+    }
+})
+
+const updateAttendances = asyncHandler(async (req, res) => {
+    res.status(200).json({message: `update attendance ${req.params.id}`})
+})
+
+const deleteAttendances = asyncHandler(async (req, res) => {
+    res.status(200).json({message: `delete attendance ${req.params.id}`})
+})
+
+module.exports = {
+    getAttendances,
+    createAttendances,
+    updateAttendances,
+    deleteAttendances
+}
