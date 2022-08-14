@@ -14,6 +14,7 @@ app.use(express.json({extended: false}));
 // app.use(bodyParser.urlencoded({ extended: true }));
 
 
+app.use('/api/users', require('./routes/userRoutes'))
 app.use('/api/attendances', require('./routes/attendanceRoutes'))
 
 app.listen(port, () => console.log(`serving port ${port}`))
