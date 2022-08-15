@@ -1,53 +1,68 @@
 const asyncHandler = require('express-async-handler')
 const Attendance = require('../models/attendanceModel')
+const User = require('../models/userModel')
 
 const getAttendances = asyncHandler(async (req, res) => {
-    console.log('test get')
-    const attendances = await Attendance.find()
-    // res.status(200).json(attendances)
-    // console.log('attendances')
-    console.log('attendances', attendances)
+    console.log(req.user._id)
+    console.log(req.user._id.valueOf())
+    console.log(req.user)
+    const attendances = await Attendance.find(({ user: '62f7dc97f7fdef5c16f2a4e0'}))
+    // const attendances = await Attendance.find(({ user: req.user._id.valueOf()}))
     res.status(200).json(attendances)
-    // res.status(200).json({message: attendances})
 })
 
 const createAttendances = asyncHandler(async (req, res) => {
-    // console.log(req.body)
-    console.log(req.body.date)
     if (!req.body.date) {
-        // res.status(400).json({ error : 'Date required.'})
         res.status(400)
         throw new Error('Date required')
     } else {
         const attendance = await Attendance.create({
-            date: req.body.date
+            date: req.body.date,
+            user: req.user._id.valueOf()
         })
         res.status(201).json(attendance)
-        // res.status(201).json({message: 'create attendance'})
     }
+    // res.status(201).json('done')
 })
 
 const updateAttendances = asyncHandler(async (req, res) => {
     const attendance = await Attendance.findById(req.params.id)
-    console.log(attendance)
-    // console.log('date', req.body.date)
     if (!attendance) {
         res.status(400).json({ message: "record not found" })
+    }
+
+    const user = await User.findById(req.user._id)
+    if(!user){
+        res.status(401)
+        throw new Error('User not found')
+    }
+
+    if(attendance.user.toString() !== user.id){
+        res.status(401)
+        throw new Error('Not authorized')
     }
     attendance.date = req.body.date;
     await attendance.save();
 
-    // attendance.date = '13-08-2022';
     res.status(200).json({message: `update attendance ${req.params.id}`})
 })
 
 const deleteAttendances = asyncHandler(async (req, res) => {
     const attendance = await Attendance.findById(req.params.id)
-    console.log('to remove', attendance)
-    // console.log('date', req.body.date)
     if (!attendance) {
         res.status(400).json({ message: "record not found" })
     }
+    const user = await User.findById(req.user._id)
+    if(!user){
+        res.status(401)
+        throw new Error('User not found')
+    }
+
+    if(attendance.user.toString() !== user.id){
+        res.status(401)
+        throw new Error('Not authorized')
+    }
+    
     await attendance.remove()
     res.status(200).json({ message: `delete attendance ${req.params.id}` })
 })

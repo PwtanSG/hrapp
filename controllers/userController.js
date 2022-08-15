@@ -3,6 +3,22 @@ const bcrypt = require('bcryptjs')
 const asyncHandler = require('express-async-handler')
 const User = require('../models/userModel')
 
+const listUsers = asyncHandler(async (req, res) => {
+    try {
+        const list = await User.find().select('-password')
+        if(list){
+            res.status(200).json(list)
+        }else{
+            res.status(200).json({message: "no data found."})
+        }
+    } catch (error) {
+        res.status(400)
+        throw new Error('Error getting users.')
+    }
+
+})
+
+
 const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body
     // Validate
@@ -53,14 +69,19 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 const getMe = asyncHandler(async (req, res) => {
-    res.json({ message : 'Display User info'})
+    const { _id, name, email } = await User.findById(req.user.id)
+    res.status(200).json({
+            id: _id,
+            name,
+            email,
+    })
 })
 
 const generateToken = (id) => {
     return jwt.sign(
         { id },
         process.env.JWT_SECRET,
-        { expiresIn: 3600} 
+        { expiresIn: 3600} //1 hr
     )
 }
 
@@ -68,4 +89,5 @@ module.exports = {
     registerUser,
     loginUser,
     getMe,
+    listUsers
 }
