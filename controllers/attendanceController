@@ -1,28 +1,41 @@
 const asyncHandler = require('express-async-handler')
 const Attendance = require('../models/attendanceModel')
 const User = require('../models/userModel')
+const moment = require('moment')
 
 const getAttendances = asyncHandler(async (req, res) => {
     console.log(req.user._id)
     console.log(req.user._id.valueOf())
     console.log(req.user)
-    const attendances = await Attendance.find(({ user: '62f7dc97f7fdef5c16f2a4e0'}))
-    // const attendances = await Attendance.find(({ user: req.user._id.valueOf()}))
+    // const attendances = await Attendance.find(({ user: '62f7dc97f7fdef5c16f2a4e0'}))
+    const attendances = await Attendance.find(({ user: req.user._id.valueOf()}))
+    console.log(moment().format('YYYY-MM-DD'))
+    console.log(moment().format("HH:mm:ss"))
     res.status(200).json(attendances)
 })
 
 const createAttendances = asyncHandler(async (req, res) => {
-    if (!req.body.date) {
-        res.status(400)
-        throw new Error('Date required')
-    } else {
-        const attendance = await Attendance.create({
-            date: req.body.date,
-            user: req.user._id.valueOf()
-        })
-        res.status(201).json(attendance)
-    }
+    // if (!req.body.date) {
+    //     res.status(400)
+    //     throw new Error('Date required')
+    // } else {
+    //     const attendance = await Attendance.create({
+    //         // date: req.body.date,
+    //         date: moment().format('YYYY-MM-DD'),
+    //         // time_in: moment().format("HH:mm:ss"),
+    //         user: req.user._id.valueOf()
+    //     })
+    //     res.status(201).json(attendance)
+    // }
     // res.status(201).json('done')
+
+    const attendance = await Attendance.create({
+        // date: req.body.date,
+        date: moment().format('YYYY-MM-DD'),
+        time_in: moment().format("HH:mm:ss"),
+        user: req.user._id.valueOf()
+    })
+    res.status(201).json(attendance)
 })
 
 const updateAttendances = asyncHandler(async (req, res) => {

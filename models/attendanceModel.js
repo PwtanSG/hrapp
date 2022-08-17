@@ -10,7 +10,11 @@ const attendanceSchema = mongoose.Schema(
     date:{
         type: String,
         required: [true, 'Please add a date']
-    }
+    },
+    time_in:{
+        type: String,
+        required: [true, 'Please add a time in']
+    },
 }, {
     timestamps: true,
 })
