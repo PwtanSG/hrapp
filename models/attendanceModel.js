@@ -15,6 +15,9 @@ const attendanceSchema = mongoose.Schema(
         type: String,
         required: [true, 'Please add a time in']
     },
+    time_out:{
+        type: String,
+    },
 }, {
     timestamps: true,
 })

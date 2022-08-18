@@ -9,43 +9,47 @@ const getAttendances = asyncHandler(async (req, res) => {
     console.log(req.user)
     // const attendances = await Attendance.find(({ user: '62f7dc97f7fdef5c16f2a4e0'}))
     const attendances = await Attendance.find(({ user: req.user._id.valueOf()}))
-    console.log(moment().format('YYYY-MM-DD'))
-    console.log(moment().format("HH:mm:ss"))
+    // console.log(moment().format('YYYY-MM-DD'))
+    // console.log(moment().format("HH:mm:ss"))
     res.status(200).json(attendances)
 })
 
 const createAttendances = asyncHandler(async (req, res) => {
-    // if (!req.body.date) {
-    //     res.status(400)
-    //     throw new Error('Date required')
-    // } else {
-    //     const attendance = await Attendance.create({
-    //         // date: req.body.date,
-    //         date: moment().format('YYYY-MM-DD'),
-    //         // time_in: moment().format("HH:mm:ss"),
-    //         user: req.user._id.valueOf()
-    //     })
-    //     res.status(201).json(attendance)
-    // }
-    // res.status(201).json('done')
-
-    const condition = {
-                        date: moment().format('YYYY-MM-DD'),
+    const todayDate = moment().format('YYYY-MM-DD')
+    const whereCondition = {
+                        date: todayDate,
+                        user: req.user._id.valueOf()
                     }
-    const userAttendance = await Attendance.find(condition);
-    console.log('userAttendance', userAttendance)
+    const userAttendance = await Attendance.find(whereCondition)
 
-    if (!userAttendance){
+    if (userAttendance.length === 0){
         const attendance = await Attendance.create({
-            // date: req.body.date,
-            date: moment().format('YYYY-MM-DD'),
+            date: todayDate,
             time_in: moment().format("HH:mm:ss"),
+            time_out: '',
             user: req.user._id.valueOf()
         })
         res.status(201).json(attendance)
     }else{
         res.status(201).json('record exist')
     }
+})
+
+const clockOutAttendances = asyncHandler(async (req, res) => {
+    const todayDate = moment().format('YYYY-MM-DD')
+    const whereCondition = {
+        date: todayDate,
+        user: req.user._id.valueOf()
+    }
+    const userAttendance = await Attendance.findOne(whereCondition)
+    if(!userAttendance.time_out){
+        userAttendance.time_out =  moment().format("HH:mm:ss");
+        await userAttendance.save();
+        res.status(201).json({message: 'Successfully clock out'})
+    } else {
+        res.status(201).json({message: 'Error clock out'})
+    }
+    console.log('userAttendance', userAttendance)
 })
 
 const updateAttendances = asyncHandler(async (req, res) => {
@@ -94,5 +98,6 @@ module.exports = {
     getAttendances,
     createAttendances,
     updateAttendances,
-    deleteAttendances
+    deleteAttendances,
+    clockOutAttendances
 }
