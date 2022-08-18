@@ -29,13 +29,23 @@ const createAttendances = asyncHandler(async (req, res) => {
     // }
     // res.status(201).json('done')
 
-    const attendance = await Attendance.create({
-        // date: req.body.date,
-        date: moment().format('YYYY-MM-DD'),
-        time_in: moment().format("HH:mm:ss"),
-        user: req.user._id.valueOf()
-    })
-    res.status(201).json(attendance)
+    const condition = {
+                        date: moment().format('YYYY-MM-DD'),
+                    }
+    const userAttendance = await Attendance.find(condition);
+    console.log('userAttendance', userAttendance)
+
+    if (!userAttendance){
+        const attendance = await Attendance.create({
+            // date: req.body.date,
+            date: moment().format('YYYY-MM-DD'),
+            time_in: moment().format("HH:mm:ss"),
+            user: req.user._id.valueOf()
+        })
+        res.status(201).json(attendance)
+    }else{
+        res.status(201).json('record exist')
+    }
 })
 
 const updateAttendances = asyncHandler(async (req, res) => {
