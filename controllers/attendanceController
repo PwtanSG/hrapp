@@ -4,23 +4,18 @@ const User = require('../models/userModel')
 const moment = require('moment')
 
 const getAttendances = asyncHandler(async (req, res) => {
-    console.log(req.user._id)
-    console.log(req.user._id.valueOf())
-    console.log(req.user)
     // const attendances = await Attendance.find(({ user: '62f7dc97f7fdef5c16f2a4e0'}))
     const attendances = await Attendance.find(({ user: req.user._id.valueOf()}))
-    // console.log(moment().format('YYYY-MM-DD'))
-    // console.log(moment().format("HH:mm:ss"))
     res.status(200).json(attendances)
 })
 
 const createAttendances = asyncHandler(async (req, res) => {
     const todayDate = moment().format('YYYY-MM-DD')
-    const whereCondition = {
+    const whereConditions = {
                         date: todayDate,
                         user: req.user._id.valueOf()
                     }
-    const userAttendance = await Attendance.find(whereCondition)
+    const userAttendance = await Attendance.find(whereConditions)
 
     if (userAttendance.length === 0){
         const attendance = await Attendance.create({
@@ -44,12 +39,15 @@ const clockOutAttendances = asyncHandler(async (req, res) => {
     const userAttendance = await Attendance.findOne(whereCondition)
     if(!userAttendance.time_out){
         userAttendance.time_out =  moment().format("HH:mm:ss");
-        await userAttendance.save();
-        res.status(201).json({message: 'Successfully clock out'})
+        try {
+            await userAttendance.save();
+            res.status(201).json({message: 'Successfully clock out'})
+        } catch (error) {
+            res.status(401).json({error: 'Error clocking out'})
+        }
     } else {
-        res.status(201).json({message: 'Error clock out'})
+        res.status(201).json({message: 'You have already clock out.'})
     }
-    console.log('userAttendance', userAttendance)
 })
 
 const updateAttendances = asyncHandler(async (req, res) => {

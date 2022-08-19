@@ -5,6 +5,7 @@ const { protect } = require('../middleware/authMiddleware')
 
 router.get('/' ,protect, getAttendances)
 router.post('/',protect, createAttendances)
+router.post('/clockin',protect, createAttendances)
 router.put('/clockout', protect,clockOutAttendances)
 router.put('/:id', protect,updateAttendances)
 router.delete('/:id', protect, deleteAttendances)
